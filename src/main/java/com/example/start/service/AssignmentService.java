@@ -2,6 +2,7 @@ package com.example.start.service;
 
 import com.example.start.dto.request.AssignmentRequest;
 import com.example.start.dto.response.AssignmentResponse;
+import com.example.start.dto.response.user.UserResponse;
 import com.example.start.entity.Assignment;
 import com.example.start.entity.Course;
 import com.example.start.entity.Role;
@@ -17,11 +18,11 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,12 +37,21 @@ public class AssignmentService {
     CourseRepository courseRepository;
     UserRepository userRepository;
     RoleRepository roleRepository;
+    CloudinaryService cloudinaryService;
 
     @PreAuthorize("@courseSecurityService.isTeacherOfCourse(#courseId, authentication.name)")
-    public AssignmentResponse createAssignment(UUID courseId, AssignmentRequest assignmentRequest){
+    public AssignmentResponse createAssignment(UUID courseId, AssignmentRequest assignmentRequest) throws IOException {
         Assignment assignment = assignmentMapper.toAssignment(assignmentRequest);
         assignment.setCourse(courseRepository.findById(courseId).orElseThrow(
                 () -> new AppException(ErrorCode.ASSIGNMENT_NOT_EXIST)));
+        List<String> fileUrls = new ArrayList<>();
+        if (assignmentRequest.getFiles() != null) {
+            for (var file : assignmentRequest.getFiles()
+            ) {
+                fileUrls.add(cloudinaryService.uploadFile(file));
+            }
+            assignment.setAssignmentUrl(fileUrls);
+        }
         assignmentRepository.save(assignment);
         return assignmentMapper.toAssignmentResponse(assignment);
     }
@@ -74,12 +84,12 @@ public class AssignmentService {
             courses = courseRepository.findAllByIsDeleted(false);
         }
         var assignments = assignmentRepository.findAll();
-        for (var assignment:assignments
+        for (var assignment : assignments
         ) {
-            if(courses.contains(assignment.getCourse())
+            if (courses.contains(assignment.getCourse())
                     && !assignment.isDeleted()
                     && assignment.getDueDate().isAfter(LocalDateTime.now()))
-            assignmentSet.add(assignment);
+                assignmentSet.add(assignment);
         }
         return assignmentSet.stream()
                 .map(assignmentMapper::toAssignmentResponse)
@@ -104,6 +114,7 @@ public class AssignmentService {
         assignment.setDeleted(true);
         assignmentRepository.save(assignment);
     }
+
     @PreAuthorize("@courseSecurityService.hasAccessToCourse(#courseId, authentication.name)")
     public List<AssignmentResponse> getAssignmentsByCourseId(UUID courseId) {
         return assignmentRepository.findByCourseId(courseId).stream()
@@ -116,5 +127,4 @@ public class AssignmentService {
 //                .map(assignmentMapper::toAssignmentResponse)
 //                .collect(Collectors.toList());
 //    }
-
 }

@@ -5,9 +5,12 @@ import com.example.start.dto.response.ApiResponse;
 import com.example.start.dto.response.AssignmentResponse;
 import com.example.start.service.AssignmentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,8 +22,9 @@ public class AssignmentController {
     private final AssignmentService assignmentService;
 
     // Tạo bài tập mới
-    @PostMapping("/{courseId}")
-    public ApiResponse<AssignmentResponse> createAssignment(@PathVariable UUID courseId, @RequestBody AssignmentRequest request) {
+    @PostMapping(value = "/{courseId}")
+    public ApiResponse<AssignmentResponse> createAssignment(@PathVariable UUID courseId
+            , @RequestBody AssignmentRequest request) throws IOException {
         ApiResponse apiResponse = new ApiResponse();
         apiResponse.setResult(assignmentService.createAssignment(courseId, request));
         return apiResponse;

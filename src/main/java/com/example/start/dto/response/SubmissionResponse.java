@@ -2,9 +2,6 @@ package com.example.start.dto.response;
 
 import com.example.start.entity.Assignment;
 import com.example.start.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,8 +16,8 @@ import java.util.List;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SubmissionResponse {
-    private Assignment assignment;
-    private User student;
-    private List<String> submissionUrl;
-    private LocalDateTime submittedAt;
+    Assignment assignment;
+    User student;
+    List<String> submissionUrl;
+    LocalDateTime submittedAt;
 }

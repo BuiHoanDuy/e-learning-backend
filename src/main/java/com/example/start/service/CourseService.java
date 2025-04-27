@@ -7,29 +7,31 @@ import com.example.start.entity.Role;
 import com.example.start.entity.User;
 import com.example.start.exception.AppException;
 import com.example.start.exception.ErrorCode;
+import com.example.start.mapper.CourseMapper;
 import com.example.start.repository.CourseRepository;
 import com.example.start.repository.RoleRepository;
 import com.example.start.repository.UserRepository;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
 @Slf4j
 @Service
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CourseService {
-
-    @Autowired
-    private CourseRepository courseRepository;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
+    CourseRepository courseRepository;
+    UserService userService;
+    UserRepository userRepository;
+    RoleRepository roleRepository;
+    CourseMapper courseMapper;
 
     //Get All Course Admin
     public List<CourseResponse> getAllCourses() {
@@ -49,33 +51,36 @@ public class CourseService {
             log.info(teacherRole.get().toString());
             courses = courseRepository.findAllByIsDeletedAndTeacher(false, user);
         } else if (adminRole.isPresent() && user.getRoles().contains(adminRole.get())) {
-            log.info("ADMIN NE: " + adminRole.get().toString());
+            log.info("ADMIN NE: " + adminRole.get());
             courses = courseRepository.findAllByIsDeleted(false);
         }
+        return courses.stream().map(courseMapper::toCourseResponse).collect(Collectors.toList());
+    }
 
-        return courses.stream().map(course -> new CourseResponse(
-                course.getId(),
-                course.getCourseName(),
-                course.getTeacher(),
-                course.getCreatedAt()
-        )).collect(Collectors.toList());
+    //Lấy danh sách sinh viên thuộc 1 khóa học nào đó
+    public List<User> getStudentList(UUID id){
+        return courseRepository.findAllUserByCourseId(id);
     }
 
     public CourseResponse getCourseById(UUID id) {
         Course course = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Course not found"));
-        return new CourseResponse(course.getId(), course.getCourseName(), course.getTeacher(), course.getCreatedAt());
+        return courseMapper.toCourseResponse(course);
     }
 
     @PreAuthorize("hasAuthority('AllPermissionForTeacher')")
     public CourseResponse createCourse(CourseRequest courseRequest) {
         User teacher = userRepository.findByUsername(userService.getMyInfo().getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        String joinCode;
+        do{
+            joinCode = UUID.randomUUID().toString().substring(0,7).toUpperCase();
+        } while (courseRepository.findByIsDeletedAndJoinCode(false,joinCode).isPresent());
         Course course = Course.builder()
                 .courseName(courseRequest.getCourseName())
                 .teacher(teacher)
+                .joinCode(joinCode)
                 .build();
-        Course savedCourse = courseRepository.save(course);
-        return new CourseResponse(savedCourse.getId(), savedCourse.getCourseName(), savedCourse.getTeacher(), savedCourse.getCreatedAt());
+        return courseMapper.toCourseResponse(courseRepository.save(course));
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
@@ -95,7 +100,12 @@ public class CourseService {
         users.add(student);
         course.setStudent(users);
 
-        Course savedCourse = courseRepository.save(course);
-        return new CourseResponse(savedCourse.getId(), savedCourse.getCourseName(), savedCourse.getTeacher(), savedCourse.getCreatedAt());
+        return courseMapper.toCourseResponse(courseRepository.save(course));
+    }
+
+    public CourseResponse findCourseByJoinCode(String joinCode) {
+        Course course = courseRepository.findByIsDeletedAndJoinCode(false,joinCode)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_EXIST));
+        return courseMapper.toCourseResponse(course);
     }
 }

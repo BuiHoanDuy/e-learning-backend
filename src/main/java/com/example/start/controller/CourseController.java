@@ -4,6 +4,7 @@ import com.example.start.dto.request.CourseRequest;
 import com.example.start.dto.response.ApiResponse;
 import com.example.start.dto.response.CourseResponse;
 import com.example.start.entity.Course;
+import com.example.start.entity.User;
 import com.example.start.service.CourseService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -52,5 +53,18 @@ public class CourseController {
         return ApiResponse.<CourseResponse>builder()
                 .result(courseService.enrollCourse(courseId))
                 .build();
+    }
+
+    @GetMapping("join-code")
+    ApiResponse<CourseResponse> getCoursesByJoinCode(@RequestParam String joinCode){
+        return ApiResponse.<CourseResponse>builder()
+                .result(courseService.findCourseByJoinCode(joinCode.toUpperCase()))
+                .code(200)
+                .build();
+    }
+
+    @GetMapping("/student-list/{courseId}")
+    List<User> getAllUsersByCourseId(@PathVariable UUID courseId){
+        return courseService.getStudentList(courseId);
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
@@ -47,7 +48,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    ApiResponse<UserResponse> updateUser(@PathVariable String userId, @RequestBody UserUpdateRequest request) {
+    ApiResponse<UserResponse> updateUser(@PathVariable UUID userId, @RequestBody UserUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.updateUser(userId, request))
                 .build();
@@ -55,7 +56,7 @@ public class UserController {
 
     //Nên sử dụng path variable cho các phần update, delete cứng, và request param cho phần lọc, tìm kiếm
     @GetMapping("/{userId}")
-    ApiResponse<UserResponse> getUser(@PathVariable("userId") String userId){
+    ApiResponse<UserResponse> getUser(@PathVariable("userId") UUID userId){
 
         ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
         apiResponse.setResult(userService.getUser(userId));
@@ -83,7 +84,7 @@ public class UserController {
     }
 
     @DeleteMapping
-    String deleteUser(@RequestParam String id){
+    String deleteUser(@RequestParam UUID id){
         userService.deleteUser(id);
         return "The user :id has been deleted";
     }

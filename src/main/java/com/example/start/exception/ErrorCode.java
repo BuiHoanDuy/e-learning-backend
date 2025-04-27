@@ -21,14 +21,18 @@ public enum ErrorCode {
     ROLE_NOT_EXIST(1002, "Can't find role USER", HttpStatus.NOT_FOUND),
     INVALID_DOB(1002, "Your age must be between {min} and {max}", HttpStatus.NOT_FOUND),
     FILE_UPLOAD_ERROR(1003, "Upload files failed, please try again.", HttpStatus.BAD_REQUEST),
+    INVALID_EMAIL(1004, "The email has been used for another account or wrong structure", HttpStatus.BAD_REQUEST),
     // Course
     COURSE_NOT_EXIST(2000, "Course is not exist", HttpStatus.NOT_FOUND),
     // Assignment
     ASSIGNMENT_NOT_EXIST(2100, "Assignment is not exist", HttpStatus.NOT_FOUND),
     // Submission
     SUBMISSION_NOT_EXIST(2200, "Submission is not exist", HttpStatus.NOT_FOUND),
+    MISS_THE_DEADLINE(2210, "Your submission missed the deadline", HttpStatus.BAD_REQUEST),
     // Lesson
-    LESSON_NOT_EXIST(2200, "Lesson is not exist", HttpStatus.NOT_FOUND),
+    LESSON_NOT_EXIST(2300, "Lesson is not exist", HttpStatus.NOT_FOUND),
+    // File
+    FILE_NOT_EXIST(2400, "File is not exist", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode StatusCode) {

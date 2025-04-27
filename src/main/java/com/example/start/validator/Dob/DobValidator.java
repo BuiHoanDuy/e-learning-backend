@@ -1,4 +1,4 @@
-package com.example.start.validator;
+package com.example.start.validator.Dob;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

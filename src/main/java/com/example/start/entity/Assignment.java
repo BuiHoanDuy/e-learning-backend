@@ -5,6 +5,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Builder
@@ -30,6 +32,12 @@ public class Assignment {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Builder.Default
+    @ElementCollection
+    @CollectionTable(name = "assignment_urls", joinColumns = @JoinColumn(name = "assignment_id"))
+    @Column(name = "url", length = 500)
+    private List<String> assignmentUrl = new ArrayList<>();
+
     private LocalDateTime dueDate;
 
     @Column(nullable = false)
@@ -42,5 +50,6 @@ public class Assignment {
     @PrePersist
     void prePersist(){
         createdAt = LocalDateTime.now();
+
     }
 }

@@ -9,6 +9,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -19,5 +20,7 @@ public class CourseResponse {
     UUID id;
     String courseName;
     User teacher;
+    String joinCode;
     LocalDateTime createdAt;
+    Set<User> student;
 }

@@ -1,13 +1,12 @@
-package com.example.start.validator;
+package com.example.start.validator.Dob;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-import org.hibernate.validator.constraints.Length;
-import org.springframework.validation.annotation.Validated;
 
 import java.lang.annotation.*;
 
-@Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.TYPE_USE})
+@Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE,
+        ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.TYPE_USE})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = {DobValidator.class})
 public @interface DobConstraint {

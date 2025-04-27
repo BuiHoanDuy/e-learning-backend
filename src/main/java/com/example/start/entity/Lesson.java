@@ -16,7 +16,6 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "Lessons")
 public class Lesson {
-
     @Id
     @GeneratedValue
     private UUID id;

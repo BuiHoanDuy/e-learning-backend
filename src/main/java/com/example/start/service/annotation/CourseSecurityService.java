@@ -3,20 +3,20 @@ package com.example.start.service.annotation;
 import com.example.start.entity.Course;
 import com.example.start.repository.AssignmentRepository;
 import com.example.start.repository.CourseRepository;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PACKAGE, makeFinal = true)
 public class CourseSecurityService {
 
-    private final CourseRepository courseRepository;
-    private final AssignmentRepository assignmentRepository;
-
-    public CourseSecurityService(CourseRepository courseRepository, AssignmentRepository assignmentRepository) {
-        this.courseRepository = courseRepository;
-        this.assignmentRepository = assignmentRepository;
-    }
+    CourseRepository courseRepository;
+    AssignmentRepository assignmentRepository;
 
     public boolean isTeacherOfCourse(UUID courseId, String username) {
         return courseRepository.findById(courseId)

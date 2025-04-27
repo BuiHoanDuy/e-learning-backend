@@ -11,4 +11,5 @@ import java.util.UUID;
 public interface SubmissionRepository extends JpaRepository<Submission, UUID> {
     List<Submission> findAllByAssignmentId(UUID assignmentId);
     Submission findAllByAssignmentIdAndStudentId(UUID assignmentId, UUID studentId);
+    void deleteAllByAssignmentIdAndStudentId(UUID assignmentId, UUID studentId);
 }

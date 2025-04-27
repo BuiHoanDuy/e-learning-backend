@@ -22,10 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -76,15 +73,10 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
     @PostAuthorize("returnObject.username == authentication.name")
-    public UserResponse updateUser(String userId, UserUpdateRequest request) {
+    public UserResponse updateUser(UUID userId, UserUpdateRequest request) {
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
         userMapper.updateUser(user, request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-        var roles = roleRepository.findAllById(request.getRoles());
-        user.setRoles(new HashSet<>(roles));
-
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
@@ -99,7 +91,7 @@ public class UserService {
     }
 
     @PostAuthorize("returnObject.getUsername() == authentication.name")
-    public UserResponse getUser(String id){
+    public UserResponse getUser(UUID id){
         log.info("In method get user by Id");
         return userMapper.toUserResponse(userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
@@ -113,7 +105,7 @@ public class UserService {
         return userResponsesList;
     }
 
-    public void deleteUser(String id){
+    public void deleteUser(UUID id){
         User user = userRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
         userRepository.delete(user);
     }
